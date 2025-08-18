@@ -13,7 +13,6 @@ mongoose
   })
   .catch((err) => {
     console.error(" Failed to connect to the database", err);
-    process.exit(1); // stop the app so Render knows it failed
-  });
+      });
 
 module.exports = mongoose;

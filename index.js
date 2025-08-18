@@ -1,10 +1,11 @@
 const express = require('express');
+require('./config/db');
+require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT ||4000
 const cors = require('cors');
 //importing routes
-require('./config/db');
-require('dotenv').config();
+
 const authRoutes = require('./routes/authenitication');
 const postRoutes = require('./routes/posts');
 const cloudinary = require('./utils/cloudinary');
