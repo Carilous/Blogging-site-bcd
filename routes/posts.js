@@ -11,7 +11,7 @@ const {
   deletePost,
 } = require("../controller/postController");
 
-// ✅ only use the upload exported from middleware
+
 const upload = require("../config/multer");
 
 // Routes
