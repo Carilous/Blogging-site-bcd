@@ -13,20 +13,17 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/posts', postRoutes);
 
-// Serve static files from the 'uploads' directory
 app.use('/uploads', express.static('uploads'));
-// Serve static files from the 'public' directory
+
 app.use('/public', express.static('public'));
 
-// Serve static files from the 'uploads' directory
 app.use(cors());
-//for errors 
-// Global error handler
+
 app.use((err, req, res, next) => {
   console.error("Error middleware:", err); // log full error in terminal
 
   if (err.name === "MulterError") {
-    // Handle Multer errors (like Unexpected field, file too large, etc.)
+  
     return res.status(400).json({
       status: "fail",
       message: err.message,
@@ -48,6 +45,7 @@ app.get('/', (req, res) => {
         message: 'Welcome to the Blogging Backend API'
     });
 });
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 
