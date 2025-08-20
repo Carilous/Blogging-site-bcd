@@ -33,38 +33,44 @@ const getPostById = async (req, res) => {
 // Creating a new post
 
 const createPost = async (req, res) => {
-  const { title, content, subtitle,tags } = req.body;
+  const { title, content, subtitle, tags } = req.body;
 
   if (!title || !content) {
     return res.status(400).json({ message: "Title and content are required" });
   }
 
   try {
-   // Upload image if provided
+    
     let imageUrl = "https://example.com/default-image.png";
+    let publicId = null;
+
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       imageUrl = result.secure_url;
+      publicId = result.public_id;
     }
 
     const newPost = await BlogPost.create({
       title,
       subtitle: subtitle || "",
       content,
-      image: cloudImage ? cloudImage.secure_url : "", // safe fallback
-      userImageID: cloudImage ? cloudImage.public_id : null,
+      image: imageUrl,      
+      userImageID: publicId, 
       author: req.user._id,
-        tags: tags ? tags.split(",") : [],
+      tags: tags ? tags.split(",") : [],
     });
 
+    
     res.status(201).json({
       message: "Post created successfully",
       post: newPost,
     });
   } catch (error) {
+    console.error("Error creating post:", error);
     res.status(500).json({ message: "Error creating post", error: error.message });
   }
 };
+
 
 
 // Updating a post
