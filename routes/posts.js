@@ -15,7 +15,7 @@ const {
 const upload = require("../config/multer");
 
 // Routes
-router.get("/", getAllPosts);
+router.get("/posts", getAllPosts);
 router.get("/:id", getPostById);
 router.post("/newpost",protect, upload.single("file"), createPost);
 router.put("/edit/:id", upload.single("file"), updatePost);
