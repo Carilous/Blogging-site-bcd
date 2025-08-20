@@ -6,14 +6,26 @@ const cloudinary = require('../utils/cloudinary');
 
 // Getting all posts
 const getAllPosts = async (req, res) => {
-    try {
-        const posts = await BlogPost.find()
-            .populate('author', 'email username profilePicture');
-        res.status(200).json(posts);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching posts' });
-    }
+  try {
+    let posts = await BlogPost.find()
+      .populate("author", "email username profilePicture")
+      .sort({ createdAt: -1 }); // optional: newest first
+
+    // Ensure local uploads get full URL (not just filename)
+    posts = posts.map((post) => {
+      if (post.imageUrl && !post.imageUrl.startsWith("http")) {
+        post.imageUrl = `${req.protocol}://${req.get("host")}/uploads/${post.imageUrl}`;
+      }
+      return post;
+    });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Error fetching posts" });
+  }
 };
+
 
 // Getting a single post
 const getPostById = async (req, res) => {
@@ -33,44 +45,38 @@ const getPostById = async (req, res) => {
 // Creating a new post
 
 const createPost = async (req, res) => {
-  const { title, content, subtitle, tags } = req.body;
+  const { title, content, subtitle,tags } = req.body;
 
   if (!title || !content) {
     return res.status(400).json({ message: "Title and content are required" });
   }
 
   try {
-    
+   // Upload image if provided
     let imageUrl = "https://example.com/default-image.png";
-    let publicId = null;
-
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       imageUrl = result.secure_url;
-      publicId = result.public_id;
     }
 
     const newPost = await BlogPost.create({
       title,
       subtitle: subtitle || "",
       content,
-      image: imageUrl,      
-      userImageID: publicId, 
+      image: cloudImage ? cloudImage.secure_url : "", // safe fallback
+      userImageID: cloudImage ? cloudImage.public_id : null,
       author: req.user._id,
-      tags: tags ? tags.split(",") : [],
+        tags: tags ? tags.split(",") : [],
     });
 
-    
     res.status(201).json({
       message: "Post created successfully",
       post: newPost,
     });
   } catch (error) {
-    console.error("Error creating post:", error);
     res.status(500).json({ message: "Error creating post", error: error.message });
   }
 };
-
 
 
 // Updating a post
