@@ -30,6 +30,9 @@ app.use('/posts', postRoutes);
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Blogging Backend API' });
 });
+app.use("/uploads", express.static("uploads"));
+// Cloudinary configuration
+
 
 
 // Error Handling
