@@ -20,6 +20,8 @@ router.get("/:id", getPostById);
 router.post("/newpost",protect, upload.single("file"), createPost);
 router.put("/edit/:id", upload.single("file"), updatePost);
 router.delete("/delete/:id", deletePost);
-router.post("/comment", commentOnPost);
+// Add comment to a specific post
+router.post("/:id/comment", protect, commentOnPost);
+
 
 module.exports = router;

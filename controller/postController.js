@@ -1,5 +1,4 @@
 const BlogPost = require('../models/BlogPost');
-const Comments = require('../models/Comments');
 
 
 const cloudinary = require('../utils/cloudinary');
@@ -132,25 +131,32 @@ const deletePost = async (req, res) => {
     }
 };
 //commenting on a post
+
 const commentOnPost = async (req, res) => {
-    const { postId, text } = req.body;
-    if (!postId || !text) {
-        return res.status(400).json({ message: 'Post ID and text are required' });
+  try {
+    const { text } = req.body;
+    const post = await post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
     }
-    try {
-        const comment = await Comments.create({
-            post: postId,
-            user: req.user._id,
-            text
-        });
-        res.status(201).json({
-            message: 'Comment added successfully',
-            comment
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error adding comment', error: error.message });
-    }
+
+    const comment = {
+      user: req.user.id, // from protect middleware
+      text,
+      createdAt: new Date(),
+    };
+
+    post.comments.push(comment);
+    await post.save();
+
+    res.status(201).json({ message: "Comment added", comment });
+  } catch (error) {
+    console.error("❌ Comment error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 module.exports = {
     commentOnPost,
